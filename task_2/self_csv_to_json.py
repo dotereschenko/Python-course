@@ -1,50 +1,39 @@
-def preprocess_data(data):
-    title = data.pop(0).strip().split(',')
+def preprocess(data):
+    delimeter=","
+    title = data.pop(0).strip().split(delimeter)
     return title, data
 
 
-def convert_row_to_pretty_json(title, values):
-    result_data = []
+def to_json(title, values):
+    res = list()
     for current_values in values:
         current_dict = dict(zip(title, current_values.split(",")))
-        pretty_line = "{"
-        current_list = []
+        pl = "{"
+        current = []
         for key in current_dict:
-            current_list.append('"{key}": "{value}"'.format(key=key, value=current_dict[key]))
+            current.append('"{key}": "{value}"'.format(key=key, value=current_dict[key]))
 
-        pretty_line += ", ".join(current_list) + "}"
-        result_data.append(pretty_line)
+        pl += ", ".join(current) + "}"
+        res.append(pl)
 
-    result_data = "[" + ", ".join(result_data) + "]"
-    return result_data
+    res = "[" + ", ".join(res) + "]"
+    return res
 
+def read_file(csv_file):
+    with open(csv_file, "r", newline="") as f:
+        content = f.read().splitlines()
+        f.close()
+    return preprocess(content)
 
-class SelfConverter:
-    def __init__(self, csv_path, json_path):
-        self.csv_path = csv_path
-        self.json_path = json_path
-
-    def read_data(self):
-        with open(self.csv_path, "r", newline="") as f:
-            content = f.read().splitlines()
-            f.close()
-        return preprocess_data(content)
-
-    def write_data(self, data):
-        with open(self.json_path, "w") as f:
-            f.write(data)
-        print("Successfully converted!")
-        return data
-
-def main():
-    csv_path = "./input.csv"
-    json_path = "./output.json"
-    converter = SelfConverter(csv_path, json_path)
-    title, values = converter.read_data()
-
-    data = convert_row_to_pretty_json(title, values)
-    converter.write_data(data)
+def write(json_file,data):
+    with open(json_file, "w") as f:
+        f.write(data)
+    return data
 
 
 if __name__ == "__main__":
-    main()
+    csv_file = "./input.csv"
+    json_file = "./output.json"
+    title, values = read_file(csv_file)
+    data = to_json(title, values)
+    write(json_file,data)
